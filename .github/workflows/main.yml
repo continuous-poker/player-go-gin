@@ -41,6 +41,7 @@ jobs:
         id: install
 
       - name: Deploy Helm chart
+        if: github.ref == 'refs/heads/main'
         run: |
           echo "${{ env.DEPLOYMENT_TOKEN }}" > kubeconfig.yaml
           
