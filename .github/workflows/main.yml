@@ -32,13 +32,16 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.IMAGE_REPOSITORY }}:latest
 
-
-
-      - name: Deploy
-        if: github.ref == 'refs/heads/main'
-        run: |-
-          echo "${{ env.DEPLOYMENT_TOKEN }}" > kubeconfig.yaml
-          kubectl --kubeconfig kubeconfig.yaml --namespace ${{ env.NAMESPACE }} apply -f target/kubernetes/kubernetes.yml
-          kubectl --kubeconfig kubeconfig.yaml --namespace ${{ env.NAMESPACE }} rollout status deployment/${{ env.DEPLOYMENT_NAME }}
-          kubectl --kubeconfig kubeconfig.yaml --namespace ${{ env.NAMESPACE }} get services -o wide
-          rm kubeconfig.yaml
+      - name: 'Deploy'
+#        if: github.ref == 'refs/heads/main'
+        uses: 'vimeda/helm@v1'
+        with:
+          release: '${{ env.DEPLOYMENT_NAME }}'
+          namespace: '${{ env.NAMESPACE }}'
+          chart: 'charts/player'
+          token: '${{ github.token }}'
+          values: |
+            ingress.hosts[0].host: ${{ env.DEPLOYMENT_NAME }}.play.continuouspoker.org
+            image.repository: ghcr.io/${{ env.IMAGE_REPOSITORY }}
+        env:
+          KUBECONFIG_FILE: '${{ secrets.TOKEN }}'
