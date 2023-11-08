@@ -32,16 +32,23 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.IMAGE_REPOSITORY }}:latest
 
-      - name: 'Deploy'
+      - name: Install Helm
 #        if: github.ref == 'refs/heads/main'
-        uses: 'vimeda/helm@v1'
+        uses: azure/setup-helm@v3
         with:
-          release: '${{ env.DEPLOYMENT_NAME }}'
-          namespace: '${{ env.NAMESPACE }}'
-          chart: 'charts/player'
-          token: '${{ github.token }}'
-          values: |
-            ingress.hosts[0].host: ${{ env.DEPLOYMENT_NAME }}.play.continuouspoker.org
-            image.repository: ghcr.io/${{ env.IMAGE_REPOSITORY }}
-        env:
-          KUBECONFIG_FILE: '${{ secrets.TOKEN }}'
+          version: 'latest' # default is latest (stable)
+          token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
+        id: install
+
+      - name: Deploy Helm chart
+        run: |
+          echo "${{ env.DEPLOYMENT_TOKEN }}" > kubeconfig.yaml
+          
+          helm install \
+          ${{ env.DEPLOYMENT_NAME }} \
+          charts/player \
+          --set "ingress.hosts[0].host=${{ env.DEPLOYMENT_NAME }}.play.continuouspoker.org,image.repository=ghcr.io/${{ env.IMAGE_REPOSITORY }}" \
+          --namespace ${{ env.NAMESPACE }} \
+          --kubeconfig kubeconfig.yaml
+          
+          rm kubeconfig.yaml
