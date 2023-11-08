@@ -41,13 +41,12 @@ jobs:
         id: install
 
       - name: Deploy Helm chart
-        working-directory: charts/player
         run: |
           echo "${{ env.DEPLOYMENT_TOKEN }}" > kubeconfig.yaml
           
           helm install \
           ${{ env.DEPLOYMENT_NAME }} \
-          . \
+          charts/player \
           --set "ingress.hosts[0].host=${{ env.DEPLOYMENT_NAME }}.play.continuouspoker.org,image.repository=ghcr.io/${{ env.IMAGE_REPOSITORY }}" \
           --namespace ${{ env.NAMESPACE }} \
           --kubeconfig kubeconfig.yaml
