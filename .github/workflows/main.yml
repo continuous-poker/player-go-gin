@@ -33,7 +33,7 @@ jobs:
           tags: ghcr.io/${{ env.IMAGE_REPOSITORY }}:latest
 
       - name: Install Helm
-#        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: azure/setup-helm@v3
         with:
           version: 'latest' # default is latest (stable)
