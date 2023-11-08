@@ -44,7 +44,7 @@ jobs:
         run: |
           echo "${{ env.DEPLOYMENT_TOKEN }}" > kubeconfig.yaml
           
-          helm install \
+          helm upgrade --install \
           ${{ env.DEPLOYMENT_NAME }} \
           charts/player \
           --set "ingress.hosts[0].host=${{ env.DEPLOYMENT_NAME }}.play.continuouspoker.org" \
